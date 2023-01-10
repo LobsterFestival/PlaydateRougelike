@@ -3,7 +3,6 @@ import "Level"
 ---------------------------------------------------------------------------
 -- - - - - - - - - - - - - - - Dungeon object - - - - - - - - - - - - - - -
 ---------------------------------------------------------------------------
-
 -- Dungeon objects have several levels (consisting of Level objects) which
 -- together represent a whole dungeon.
 
