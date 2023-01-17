@@ -26,6 +26,14 @@ function tilePos2Coords(row, column)
     return { X, Y }
 end
 
+function coords2TilePos(x, y)
+    -- level matrix is 1 bigger x,y add offset, should fix this
+    local gridOffset = 1
+    R = y / 8
+    C = x / 8
+    return { R + gridOffset, C + gridOffset }
+end
+
 -- PLAYER --
 UP = 1
 DOWN = 2
@@ -40,25 +48,62 @@ Player = {
     inventory = {},
 }
 
+
+
+-- END PLAYER --
+
+start = true
+dungeon = Dungeon:new(nrOfLevels, height, width)
+dungeon:generateDungeon()
+
+local function initBackground()
+    gfx.sprite.setBackgroundDrawingCallback(
+        function(x, y, width, height)
+            dungeon:printDungeon():draw(0, 0)
+        end
+    )
+end
+
 -- Player Movement and intent
+function checkMovementEffect(x, y)
+    print(x .. y)
+    rc = coords2TilePos(x, y)
+    print("r,c " .. rc[1] .. rc[2])
+    tileToMoveTo = dungeon.levels[1].matrix[rc[1]][rc[2]]
+    print(tileToMoveTo.class.name)
+    if tileToMoveTo:isWall() then
+        print("Wall detected!")
+        return 1
+    end
+    -- TODO: add checks for closed doors, up stairs and down stairs
+end
+
 function Player:moveIntent(dir)
+
     -- TODO: add calls to function for checking collisions with
     -- Walls, Actors, Items, etc.
     currX = Player.sprite.x
     currY = Player.sprite.y
-    print("Current X: " .. currX .. " Current Y: " .. currY)
     -- Up: -8px Y
     if dir == UP then
-        Player.sprite:moveTo(currX, currY - 8)
+        if checkMovementEffect(currX, currY - 8) ~= 1 then
+            Player.sprite:moveTo(currX, currY - 8)
+        end
         -- Down: +8px Y
     elseif dir == DOWN then
-        Player.sprite:moveTo(currX, currY + 8)
+        if checkMovementEffect(currX, currY + 8) ~= 1 then
+            Player.sprite:moveTo(currX, currY + 8)
+        end
         -- Left: -8px X
     elseif dir == LEFT then
-        Player.sprite:moveTo(currX - 8, currY)
+        if checkMovementEffect(currX - 8, currY) ~= 1 then
+            Player.sprite:moveTo(currX - 8, currY)
+        end
         -- Right: +8px X
     elseif dir == RIGHT then
-        Player.sprite:moveTo(currX + 8, currY)
+        if checkMovementEffect(currX + 8, currY) ~= 1 then
+            Player.sprite:moveTo(currX + 8, currY)
+        end
     end
 end
 
@@ -71,21 +116,6 @@ local function initPlayer()
     Player.sprite:add()
 end
 
-
-
--- END PLAYER --
-
-start = true
-dungeon = Dungeon:new(nrOfLevels, height, width)
-dungeon:generateDungeon()
-
-local function initBackground()
-    gfx.sprite.setBackgroundDrawingCallback(
-        function(x, y, width, height)
-            dungeon:printDungeon():draw(0,0)
-        end
-    )
-end
 -- initPlayer()
 -- initBackground(dungeon.levels[1].levelImage)
 -- Helper function that draws dungeon to single image for display?

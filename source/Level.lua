@@ -50,7 +50,7 @@ function Level:new(height, width)
   level.maxRooms = ceil(max(height, width) / Level.MIN_ROOM_SIZE)
   -- Determines amount of random tiles built when generating corridors:
   level.scatteringFactor = ceil(max(height, width) / level.maxRoomSize)
-  level.levelImage = playdate.graphics.image.new(240, 400)
+  level.levelImage = playdate.graphics.image.new(248, 408)
   setmetatable(level, Level)
   return level
 end
@@ -104,7 +104,7 @@ function Level:printLevel()
 
       -- Draw tiles to a single image for display
 
-      self.matrix[i][j].class:draw(rowOffset, heightOffset)
+      self.matrix[i][j].class.img:draw(rowOffset, heightOffset)
 
       ::SkipEmpty::
       rowOffset = rowOffset + 8

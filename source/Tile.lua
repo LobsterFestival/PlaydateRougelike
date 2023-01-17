@@ -24,30 +24,40 @@ end
 Tile = { class, roomId }
 Tile.__index = Tile
 
-emptyImg         = gfx.image.new("images/EMPTY")
-floorImg         = gfx.image.new("images/FLOOR_FULL")
-wallImg          = gfx.image.new("images/WALL")
-aStairImg        = gfx.image.new("images/UP_STAIR")
-dStairImg        = gfx.image.new("images/DOWN_STAIR")
-soilImg          = gfx.image.new("images/SOIL")
-cDoorImg         = gfx.image.new("images/C_DOOR")
-oDoorImg         = gfx.image.new("images/O_DOOR")
+emptyImg  = gfx.image.new("images/EMPTY")
+floorImg  = gfx.image.new("images/FLOOR_FULL")
+wallImg   = gfx.image.new("images/WALL")
+aStairImg = gfx.image.new("images/UP_STAIR")
+dStairImg = gfx.image.new("images/DOWN_STAIR")
+soilImg   = gfx.image.new("images/SOIL")
+cDoorImg  = gfx.image.new("images/C_DOOR")
+oDoorImg  = gfx.image.new("images/O_DOOR")
 
-Tile.EMPTY       = emptyImg
-Tile.FLOOR       = floorImg
-Tile.WALL        = wallImg
-Tile.A_STAIRCASE = aStairImg
-Tile.D_STAIRCASE = dStairImg
-Tile.SOIL        = soilImg
-Tile.VEIN        = soilImg
-Tile.C_DOOR      = cDoorImg
-Tile.O_DOOR      = oDoorImg
+-- Can't compare gfx.image objects, use this as a hacky work arround and compare strings instead!
+Tile.EMPTY      = {img = emptyImg, name = "empty"}
+
+Tile.FLOOR      = {img = floorImg, name = "floor"}
+
+Tile.WALL      = {img = wallImg, name = "wall"}
+
+Tile.A_STAIRCASE = {img = aStairImg, name = "aStair"}
+
+Tile.D_STAIRCASE = {img = dStairImg, name = "dStair"}
+
+-- HACK: remove the actual soil and vein generation eventually
+Tile.SOIL      = {img = wallImg, name = "soil"}
+
+Tile.VEIN      = {img = wallImg, name = "vein"}
+
+Tile.C_DOOR      = {img = cDoorImg, name = "cDoor"}
+
+Tile.O_DOOR      = {img = oDoorImg, name = "oDoor"}
 
 function Tile:new(t)
   local tile = {}
   tile.class = t
   tile.roomId = 0
-
+  tile.class.name = t.name
   setmetatable(tile, Tile)
 
   return tile
@@ -57,13 +67,14 @@ end
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
 
 function Tile:isWall()
+  print("isWall called")
   return (
-      self.class == Tile.WALL or
-          self.class == Tile.SOIL or
-          self.class == Tile.VEIN
+      self.class.name == "wall" or
+          self.class.name == "soil" or
+          self.class.name == "vein"
       )
 end
 
 function Tile:isEmpty()
-  return self.class == Tile.EMPTY
+  return self.class.name == "empty"
 end
