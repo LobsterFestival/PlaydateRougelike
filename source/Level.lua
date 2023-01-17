@@ -20,13 +20,17 @@ math.randomseed(seed)
 -- A Level object consist of several Tile objects which together make up
 -- one dungeon level.
 
-Level = { height, width, matrix, rooms, entrances, staircases }
+-- Will have "flat" image of all tiles for easy display
+
+Level = { height, width, matrix, rooms, entrances, staircases, levelImage }
 Level.__index = Level
 
 Level.MIN_ROOM_SIZE = 3
 
 Level.veinSpawnRate = 0.00
 Level.soilSpawnRate = 0.00
+
+
 
 function Level:new(height, width)
   if height < 10 or width < 10 then error("Level must have height>=10, width>=10") end
@@ -39,13 +43,14 @@ function Level:new(height, width)
     entrances = {},
     staircases = {},
     rootRoom = nil,
-    endRoom = nil
+    endRoom = nil,
+    levelImage = nil
   }
   level.maxRoomSize = ceil(min(height, width) / 10) + 5
   level.maxRooms = ceil(max(height, width) / Level.MIN_ROOM_SIZE)
   -- Determines amount of random tiles built when generating corridors:
   level.scatteringFactor = ceil(max(height, width) / level.maxRoomSize)
-
+  level.levelImage = playdate.graphics.image.new(240, 400)
   setmetatable(level, Level)
   return level
 end
@@ -85,14 +90,22 @@ end
 function Level:printLevel()
   local heightOffset = 0
   local rowOffset = 0
+  playdate.graphics.pushContext(Level.levelImage)
+  playdate.graphics.lockFocus(Level.levelImage)
   print("height: " .. self.height .. "\nWidth: " .. self.width)
+  -- all draw calls write to Level.levelImage
+
   for i = 1, self.height + 1 do
     for j = 1, self.width + 1 do
       -- print each sprite one at a time
       if self:getTile(i, j):isEmpty() then
         goto SkipEmpty
       end
+
+      -- Draw tiles to a single image for display
+
       self.matrix[i][j].class:draw(rowOffset, heightOffset)
+
       ::SkipEmpty::
       rowOffset = rowOffset + 8
       if rowOffset == 0 then
@@ -113,7 +126,10 @@ function Level:printLevel()
       heightOffset = 0
     end
   end
-  return 0
+  playdate.graphics.unlockFocus()
+  playdate.graphics.popContext()
+  print("Returning level Image")
+  return self.levelImage
 end
 
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --

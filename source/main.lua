@@ -71,36 +71,31 @@ local function initPlayer()
     Player.sprite:add()
 end
 
-local function initBackground()
-    backgroundImage = gfx.image.new("images/BG_FRAME")
-    assert(backgroundImage)
-    gfx.sprite.setBackgroundDrawingCallback(
-        function(x, y, width, height)
-            gfx.setClipRect(x, y, width, height)
-            backgroundImage:draw(0, 0)
-            gfx.clearClipRect()
-        end
-    )
-end
+
 
 -- END PLAYER --
 
 start = true
 dungeon = Dungeon:new(nrOfLevels, height, width)
-initBackground()
-initPlayer()
+dungeon:generateDungeon()
+
+local function initBackground()
+    gfx.sprite.setBackgroundDrawingCallback(
+        function(x, y, width, height)
+            dungeon:printDungeon():draw(0,0)
+        end
+    )
+end
+-- initPlayer()
+-- initBackground(dungeon.levels[1].levelImage)
+-- Helper function that draws dungeon to single image for display?
 
 -- Main Game Loop --
 function playdate.update()
-    if start then
-        dungeon:generateDungeon()
-        dungeon:printDungeon()        
-        start = false
-    end
     if playdate.buttonJustPressed(playdate.kButtonA) then
         gfx.clear()
         dungeon:generateDungeon()
-        dungeon:printDungeon()
+        initBackground()
     end
     if playdate.buttonJustPressed(playdate.kButtonUp) then
         Player:moveIntent(UP)
@@ -118,5 +113,14 @@ function playdate.update()
         Player:moveIntent(RIGHT)
 
     end
+    if start then
+        initBackground()
+    end
     gfx.sprite.update()
+    playdate.timer.updateTimers()
+    if start then
+        initPlayer()
+        start = false
+    end
+
 end

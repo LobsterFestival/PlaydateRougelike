@@ -34,8 +34,7 @@ function Dungeon:generateDungeon(advanced, maxRooms, maxRoomSize, scatteringFact
 end
 
 function Dungeon:printDungeon()
-  dungeon.levels[1]:printLevel()
-  return 0
+  return dungeon.levels[1]:printLevel()
 end
 
 function Dungeon:cleanUp()
