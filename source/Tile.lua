@@ -32,9 +32,7 @@ dStairImg        = gfx.image.new("images/DOWN_STAIR")
 soilImg          = gfx.image.new("images/SOIL")
 cDoorImg         = gfx.image.new("images/C_DOOR")
 oDoorImg         = gfx.image.new("images/O_DOOR")
-playerImg        = gfx.image.new("images/PLAYER")
-playerSprite     = gfx.sprite.new(playerImg)
-TILE.PLAYER      = playerSprite
+
 Tile.EMPTY       = emptyImg
 Tile.FLOOR       = floorImg
 Tile.WALL        = wallImg

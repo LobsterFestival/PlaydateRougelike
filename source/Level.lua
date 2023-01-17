@@ -25,8 +25,8 @@ Level.__index = Level
 
 Level.MIN_ROOM_SIZE = 3
 
-Level.veinSpawnRate = 0.02
-Level.soilSpawnRate = 0.05
+Level.veinSpawnRate = 0.00
+Level.soilSpawnRate = 0.00
 
 function Level:new(height, width)
   if height < 10 or width < 10 then error("Level must have height>=10, width>=10") end
@@ -92,7 +92,6 @@ function Level:printLevel()
       if self:getTile(i, j):isEmpty() then
         goto SkipEmpty
       end
-      print("Getting: " .. i .. " " .. j)
       self.matrix[i][j].class:draw(rowOffset, heightOffset)
       ::SkipEmpty::
       rowOffset = rowOffset + 8

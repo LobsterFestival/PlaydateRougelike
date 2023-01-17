@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"a84ac08694c46307","x":-415,"y":-403,"width":250,"height":93,"type":"text","text":"Player Object\n"},
+		{"id":"b0198e8057fb78ad","x":22,"y":-340,"width":250,"height":60,"type":"text","text":"Enemy object\n"}
+	],
+	"edges":[
+		{"id":"4843d1ddea98e8ae","fromNode":"a84ac08694c46307","fromSide":"right","toNode":"b0198e8057fb78ad","toSide":"left"}
+	]
+}
