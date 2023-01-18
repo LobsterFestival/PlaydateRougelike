@@ -67,7 +67,6 @@ end
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
 
 function Tile:isWall()
-  print("isWall called")
   return (
       self.class.name == "wall" or
           self.class.name == "soil" or
@@ -77,4 +76,20 @@ end
 
 function Tile:isEmpty()
   return self.class.name == "empty"
+end
+
+function Tile:isFloor()
+  return self.class.name == "floor"
+end
+
+function Tile:isClosedDoor()
+  return self.class.name == "cDoor"
+end
+
+function Tile:isAccendStair()
+  return self.class.name == "aStair"
+end
+
+function Tile:isDecendStair()
+  return self.class.name == "dStair"
 end

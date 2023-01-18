@@ -44,7 +44,11 @@ function Level:new(height, width)
     staircases = {},
     rootRoom = nil,
     endRoom = nil,
-    levelImage = nil
+    levelImage = nil,
+    floorTilesArray = {},
+    doorTilesArray = {},
+    aStairLocation = {},
+    dStairLocation = {}
   }
   level.maxRoomSize = ceil(min(height, width) / 10) + 5
   level.maxRooms = ceil(max(height, width) / Level.MIN_ROOM_SIZE)
@@ -68,6 +72,18 @@ function Level:generateLevel()
   -- self:addCycles(5)
   self:addStaircases()
   self:addDoors()
+
+  -- loop through level matrix and add important tiles to their respective tables
+  -- TODO: more effiecent way of doing this would be inline with the level generation itself
+  for i = -1, self.height + 1 do
+    for j = 0, self.width + 1 do
+      local tile2check = self.matrix[i][j]
+      -- Skip Empty Tiles
+      if tile2check.class.name ~= "empty" then
+        self:trackImportantTiles(i, j, tile2check)
+      end
+    end
+  end
 end
 
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
@@ -83,6 +99,21 @@ function Level:initMap()
   end
 
   self:addWalls(0, 0, self.height + 1, self.width + 1)
+end
+
+-- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
+-- Helper functions for storing important sections of generated Levels
+
+function Level:trackImportantTiles(R, C, importantTile)
+  if importantTile.class.name == "floor" then
+    insert(self.floorTilesArray, { R, C })
+  elseif importantTile.class.name == "aStair" then
+    insert(self.aStairLocation, { R, C })
+  elseif importantTile.class.name == "dStair" then
+    insert(self.dStairLocation, { R, C })
+  elseif importantTile.class.name == "cDoor" then
+    insert(self.doorTilesArray, { R, C })
+  end
 end
 
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
@@ -329,11 +360,12 @@ end
 function Level:addStaircases(maxStaircases)
   -- Adds both descending and ascending staircases to random rooms.
   -- Number of staircases depend on number of rooms.
-
-  if (not maxStaircases) or (maxStaircases > #self.rooms) then
-    maxStaircases = ceil(#self.rooms - (#self.rooms / 2)) + 1
-  end
-  local staircases = random(2, maxStaircases)
+  -- TODO: this code needs to ensure there is always one up and one down staircase in a level!
+  -- if (not maxStaircases) or (maxStaircases > #self.rooms) then
+  --   -- maxStaircases = ceil(#self.rooms - (#self.rooms / 2)) + 1
+  --   maxStaircases = 2
+  -- end
+  local staircases = 2
 
   repeat
     local room = self:getRandRoom()
@@ -391,7 +423,7 @@ function Level:placeStaircase(room, staircases)
 
   local nrow, ncol = room.center[1], room.center[2]
   repeat
-    row, col = nrow, ncol
+    local row, col = nrow, ncol
     repeat
       nrow, ncol = getRandNeighbour(row, col)
     until self:getTile(nrow, ncol).class == Tile.FLOOR
