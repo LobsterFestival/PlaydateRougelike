@@ -117,23 +117,20 @@ function Level:trackImportantTiles(R, C, importantTile)
 end
 
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
-
+-- TODO: print level being called multiple times on subsequent level generation
 function Level:printLevel()
   local heightOffset = 0
   local rowOffset = 0
+
+  -- all draw calls write to Level.levelImage
   playdate.graphics.pushContext(Level.levelImage)
   playdate.graphics.lockFocus(Level.levelImage)
-  print("height: " .. self.height .. "\nWidth: " .. self.width)
-  -- all draw calls write to Level.levelImage
-
   for i = 1, self.height + 1 do
     for j = 1, self.width + 1 do
       -- print each sprite one at a time
       if self:getTile(i, j):isEmpty() then
         goto SkipEmpty
       end
-
-      -- Draw tiles to a single image for display
 
       self.matrix[i][j].class.img:draw(rowOffset, heightOffset)
 
@@ -159,7 +156,27 @@ function Level:printLevel()
   end
   playdate.graphics.unlockFocus()
   playdate.graphics.popContext()
-  print("Returning level Image")
+
+  print("finsihed printing entire dungeon!")
+  return self.levelImage
+end
+
+-- Function used by background image callback
+-- @param tiles: array of tables containing row and column of tiles to be updated
+function Level:updateLevelTiles(tiles)
+  -- draw to background image
+  playdate.graphics.pushContext(Level.levelImage)
+  playdate.graphics.lockFocus(Level.levelImage)
+  for k, v in pairs(tiles) do
+    -- DEBUG: make local after peeking
+    -- v[1] and v[2] are the row and column of the tile to draw
+    local xy = tilePos2Coords(v[1], v[2])
+    print("updating dirty tile at "..xy[1].." , "..xy[2].."\n row: "..v[1].." column: "..v[2])
+    self.matrix[v[1]][v[2]].class.img:draw(xy[1], xy[2])
+  end
+  playdate.graphics.unlockFocus()
+  playdate.graphics.popContext()
+
   return self.levelImage
 end
 

@@ -21,7 +21,7 @@ function loadImageToSpriteHelper(path)
 end
 
 -- loadin tileset
-Tile = { class, roomId }
+Tile = { class, roomId, img, name }
 Tile.__index = Tile
 
 emptyImg  = gfx.image.new("images/EMPTY")

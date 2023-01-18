@@ -37,6 +37,10 @@ function Dungeon:printDungeon()
   return dungeon.levels[1]:printLevel()
 end
 
+function Dungeon:updateDirtyTiles(dirtyTiles)
+  return dungeon.levels[1]:updateLevelTiles(dirtyTiles)
+end
+
 function Dungeon:cleanUp()
   self.levels[1] = nil
 end
