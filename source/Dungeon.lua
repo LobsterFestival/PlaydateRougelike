@@ -33,14 +33,10 @@ function Dungeon:generateDungeon(advanced, maxRooms, maxRoomSize, scatteringFact
   end
 end
 
-function Dungeon:printDungeon()
-  return dungeon.levels[1]:printLevel()
+function Dungeon:printDungeon(index)
+  return self.levels[index]:printLevel()
 end
 
 function Dungeon:updateDirtyTiles(dirtyTiles)
-  return dungeon.levels[1]:updateLevelTiles(dirtyTiles)
-end
-
-function Dungeon:cleanUp()
-  self.levels[1] = nil
+  return self.levels[1]:updateLevelTiles(dirtyTiles)
 end

@@ -1,6 +1,7 @@
 import "helpFunctions"
 import "Tile"
 import "Room"
+import "Actor"
 
 local random = math.random
 local floor = math.floor
@@ -30,8 +31,6 @@ Level.MIN_ROOM_SIZE = 3
 Level.veinSpawnRate = 0.00
 Level.soilSpawnRate = 0.00
 
-
-
 function Level:new(height, width)
   if height < 10 or width < 10 then error("Level must have height>=10, width>=10") end
 
@@ -48,7 +47,8 @@ function Level:new(height, width)
     floorTilesArray = {},
     doorTilesArray = {},
     aStairLocation = {},
-    dStairLocation = {}
+    dStairLocation = {},
+    actors = {}
   }
   level.maxRoomSize = ceil(min(height, width) / 10) + 5
   level.maxRooms = ceil(max(height, width) / Level.MIN_ROOM_SIZE)
@@ -64,7 +64,7 @@ end
 function Level:generateLevel()
   -- A default generation of a level including rooms, corridors to each room forming
   -- an MSF, staircases and doors. addCycles can be uncommented to dig more corridors.
-
+  print("Generating Level")
   self:initMap()
   self:generateRooms()
   root = self:getRoomTree()
@@ -72,18 +72,12 @@ function Level:generateLevel()
   -- self:addCycles(5)
   self:addStaircases()
   self:addDoors()
+  -- Level Generation Complete
 
-  -- loop through level matrix and add important tiles to their respective tables
-  -- TODO: more effiecent way of doing this would be inline with the level generation itself
-  for i = -1, self.height + 1 do
-    for j = 0, self.width + 1 do
-      local tile2check = self.matrix[i][j]
-      -- Skip Empty Tiles
-      if tile2check.class.name ~= "empty" then
-        self:trackImportantTiles(i, j, tile2check)
-      end
-    end
-  end
+  self:trackImportantTiles()
+  -- only currently displayed levels should generate and display their Actors
+  -- self:generateActors()
+
 end
 
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
@@ -104,15 +98,51 @@ end
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
 -- Helper functions for storing important sections of generated Levels
 
-function Level:trackImportantTiles(R, C, importantTile)
+function Level:trackImportantTiles()
+  -- loop through level matrix and add important tiles to their respective tables
+  -- TODO: more effiecent way of doing this would be inline with the level generation itself
+  for i = -1, self.height + 1 do
+    for j = 0, self.width + 1 do
+      local tile2check = self.matrix[i][j]
+      -- Skip Empty Tiles
+      if tile2check.class.name ~= "empty" then
+        self:addImportantTile(i, j, tile2check)
+      end
+    end
+  end
+end
+
+function Level:addImportantTile(R, C, importantTile)
   if importantTile.class.name == "floor" then
-    insert(self.floorTilesArray, { R, C })
+    insert(self.floorTilesArray, { r = R, c = C })
   elseif importantTile.class.name == "aStair" then
-    insert(self.aStairLocation, { R, C })
+    insert(self.aStairLocation, { r = R, c = C })
   elseif importantTile.class.name == "dStair" then
-    insert(self.dStairLocation, { R, C })
+    insert(self.dStairLocation, { r = R, c = C })
   elseif importantTile.class.name == "cDoor" then
-    insert(self.doorTilesArray, { R, C })
+    insert(self.doorTilesArray, { r = R, c = C })
+  end
+end
+
+-- Generates and places, but does not display actors in a level
+-- TODO: add params
+function Level:generateActors()
+  -- DEBUG: spawn just 1 goblin
+  local newActor = createActor(goblin)
+  -- pick valid spawn for actor
+  local validSpawns = self.floorTilesArray
+  local spawnRC = validSpawns[math.random(#validSpawns)]
+  local spawnPos = tilePos2Coords(spawnRC.r, spawnRC.c)
+  print("Spawning goblo at Row: "..spawnRC.r.." Col: "..spawnRC.c.." X: "..spawnPos.x.." Y: "..spawnPos.y)
+  newActor:moveTo(spawnPos.x, spawnPos.y)
+  insert(self.actors, newActor)
+end
+
+-- add all actors to screen
+function Level:drawActors()
+  -- TODO: is next faster than this?
+  for k, v in pairs(self.actors) do
+    v:add()
   end
 end
 
@@ -157,7 +187,6 @@ function Level:printLevel()
   playdate.graphics.unlockFocus()
   playdate.graphics.popContext()
 
-  print("finsihed printing entire dungeon!")
   return self.levelImage
 end
 
@@ -171,8 +200,7 @@ function Level:updateLevelTiles(tiles)
     -- DEBUG: make local after peeking
     -- v[1] and v[2] are the row and column of the tile to draw
     local xy = tilePos2Coords(v[1], v[2])
-    print("updating dirty tile at "..xy[1].." , "..xy[2].."\n row: "..v[1].." column: "..v[2])
-    self.matrix[v[1]][v[2]].class.img:draw(xy[1], xy[2])
+    self.matrix[v[1]][v[2]].class.img:draw(xy.x, xy.y)
   end
   playdate.graphics.unlockFocus()
   playdate.graphics.popContext()
