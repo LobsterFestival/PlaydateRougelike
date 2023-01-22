@@ -122,9 +122,7 @@ function playdate.update()
     if playdate.buttonJustPressed(playdate.kButtonA) then
         local currentTile = playerCurrentTile(Player.sprite.x, Player.sprite.y)
         spawnInfo = nil
-        print("pressed A, current tile: " .. currentTile.class.name)
         if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
-            print("We on a stair!")
             spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)
         end
         if spawnInfo ~= nil then

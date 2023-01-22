@@ -133,7 +133,6 @@ function Level:generateActors()
   local validSpawns = self.floorTilesArray
   local spawnRC = validSpawns[math.random(#validSpawns)]
   local spawnPos = tilePos2Coords(spawnRC.r, spawnRC.c)
-  print("Spawning goblo at Row: "..spawnRC.r.." Col: "..spawnRC.c.." X: "..spawnPos.x.." Y: "..spawnPos.y)
   newActor:moveTo(spawnPos.x, spawnPos.y)
   insert(self.actors, newActor)
 end
@@ -146,8 +145,9 @@ function Level:drawActors()
   end
 end
 
+-- TODO: add draw function for drawing actors only when we enter a room.
+
 -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### -- ##### --
--- TODO: print level being called multiple times on subsequent level generation
 function Level:printLevel()
   local heightOffset = 0
   local rowOffset = 0

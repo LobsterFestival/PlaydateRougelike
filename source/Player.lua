@@ -35,7 +35,7 @@ function playerGetNextLevelSpawnStair(stair, currentLevel)
     -- Will have to ensure every level has 1 up and 1 down stair on each level
     assert(spawnStair ~= nil)
     local xy = tilePos2Coords(spawnStair[1].r, spawnStair[1].c)
-    return {x = xy.x , y = xy.y, offset = transitionOffset}
+    return { x = xy.x, y = xy.y, offset = transitionOffset }
 end
 
 -- returns current Tile object player is standing on
@@ -61,7 +61,7 @@ function Player:moveIntent(dir)
     -- Actors, Items, etc.
     currX = Player.sprite.x
     currY = Player.sprite.y
-    -- row and column of actors current position 
+    -- row and column of actors current position
     currTileGridPos = coords2TilePos(currX, currY)
     -- Up: -8px Y
     if dir == UP then
