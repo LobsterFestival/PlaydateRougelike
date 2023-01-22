@@ -69,9 +69,9 @@ local function initBackground()
 end
 
 local function initPlayer()
-    local playerImage = gfx.image.new("images/PLAYER")
-    if (not Player.sprite) then
-        Player.sprite = gfx.sprite.new(playerImage)
+    if (not Player) then
+        print("creating player")
+        Player = createPlayer(playerInfo)
     end
     local validSpawns = dungeon.levels[1].floorTilesArray
     -- this will return the Row and Column (level.matrix) of a valid floor tile
@@ -79,14 +79,9 @@ local function initPlayer()
     -- TODO: can get tile x,y from image at that grid location, refactor
     spawnRC = validSpawns[math.random(#validSpawns)]
     spawnPos = tilePos2Coords(spawnRC.r, spawnRC.c)
-    Player.sprite:moveTo(spawnPos.x, spawnPos.y)
-    -- set center to top left so everything aligns to our 30 x 50 grid representation
-    Player.sprite:setCenter(0, 0)
-    Player.sprite:setCollideRect(0,0, Player.sprite:getSize())
-    Player.sprite:setGroups(PLAYER_SPRITE_GROUP)
-    Player.sprite:setCollidesWithGroups(ACTOR_SPRITE_GROUP)
-    Player.sprite.collisionResponse = gfx.sprite.kCollisionTypeFreeze
-    Player.sprite:add()
+    Player:moveTo(spawnPos.x, spawnPos.y)
+    Player:add()
+    return Player
 end
 
 -- handles cleaning up current level being displayed, prints the next dungeon,
@@ -96,8 +91,8 @@ function levelTransition(nextLevel, x, y)
     -- TODO: smelly call
     local newLevel = dungeon.levels[nextLevel]
     newLevel:printDungeon(nextLevel)
-    Player.sprite:moveTo(x, y)
-    Player.sprite.add()
+    Player:moveTo(x, y)
+    Player:add()
     -- Generate actors for newLevel
     newLevel:generateActors()
     newLevel:drawActors()
@@ -106,7 +101,7 @@ end
 start = true
 -- Currently displayed dungeon.levels[i]
 currentLevel = 1
-
+Player = nil
 -- Main Game Loop --
 function playdate.update()
 
@@ -116,7 +111,7 @@ function playdate.update()
     gfx.sprite.update()
     playdate.timer.updateTimers()
     if start then
-        initPlayer()
+        Player = initPlayer()
         dungeon.levels[currentLevel]:generateActors()
         dungeon.levels[currentLevel]:drawActors()
         start = false
@@ -124,7 +119,7 @@ function playdate.update()
 
     -- TODO: Button Callbacks
     if playdate.buttonJustPressed(playdate.kButtonA) then
-        local currentTile = playerCurrentTile(Player.sprite.x, Player.sprite.y)
+        local currentTile = playerCurrentTile(Player.x, Player.y)
         spawnInfo = nil
         if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
             spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)

@@ -2,14 +2,14 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "ActorDefinitions"
-
+local gfx <const> = playdate.graphics
 -- ACTOR --
 UP = 1
 DOWN = 2
 LEFT = 3
 RIGHT = 4
 
-class('Actor').extends(playdate.graphics.sprite)
+class('Actor').extends(gfx.sprite)
 ACTOR_SPRITE_GROUP = 2
 function createActor(actorInfo)
     local actor = Actor()
@@ -20,7 +20,7 @@ function createActor(actorInfo)
     actor:setCollideRect(0, 0, actor:getSize())
     actor:setGroups(ACTOR_SPRITE_GROUP)
     actor:setCollidesWithGroups(PLAYER_SPRITE_GROUP)
-    actor.collisionResponse = playdate.graphics.sprite.kCollisionTypeFreeze
+    actor.collisionResponse = gfx.sprite.kCollisionTypeFreeze
     actor.name = actorInfo.name
     actor.desc = actorInfo.desc
     actor.hp = actorInfo.hp
