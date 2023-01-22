@@ -82,6 +82,10 @@ local function initPlayer()
     Player.sprite:moveTo(spawnPos.x, spawnPos.y)
     -- set center to top left so everything aligns to our 30 x 50 grid representation
     Player.sprite:setCenter(0, 0)
+    Player.sprite:setCollideRect(0,0, Player.sprite:getSize())
+    Player.sprite:setGroups(PLAYER_SPRITE_GROUP)
+    Player.sprite:setCollidesWithGroups(ACTOR_SPRITE_GROUP)
+    Player.sprite.collisionResponse = gfx.sprite.kCollisionTypeFreeze
     Player.sprite:add()
 end
 

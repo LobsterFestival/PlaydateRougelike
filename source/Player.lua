@@ -9,6 +9,7 @@ DOWN = 2
 LEFT = 3
 RIGHT = 4
 
+PLAYER_SPRITE_GROUP = 1
 Player = {
     sprite = nil,
     hp = 10,
@@ -52,6 +53,8 @@ function checkMovementEffect(x, y)
     if tileToMoveTo:isWall() then
         return 1
     end
+    -- Bumping into Enemy Actor
+
     -- TODO: add checks for closed doors
 end
 
@@ -59,35 +62,81 @@ function Player:moveIntent(dir)
 
     -- TODO: add calls to function for checking collisions with
     -- Actors, Items, etc.
-    currX = Player.sprite.x
-    currY = Player.sprite.y
+    local currX = Player.sprite.x
+    local currY = Player.sprite.y
     -- row and column of actors current position
-    currTileGridPos = coords2TilePos(currX, currY)
+    local currTileGridPos = coords2TilePos(currX, currY)
     -- Up: -8px Y
+    local nonBlockingMovement = false
+    local destination = { x = currX, y = currY }
     if dir == UP then
         if checkMovementEffect(currX, currY - 8) ~= 1 then
             addDirtyTile(currTileGridPos.r, currTileGridPos.c)
-            Player.sprite:moveTo(currX, currY - 8)
+            nonBlockingMovement = true
+            destination.x = currX
+            destination.y = currY - 8
         end
         -- Down: +8px Y
     elseif dir == DOWN then
         if checkMovementEffect(currX, currY + 8) ~= 1 then
             addDirtyTile(currTileGridPos.r, currTileGridPos.c)
-            Player.sprite:moveTo(currX, currY + 8)
+            nonBlockingMovement = true
+            destination.x = currX
+            destination.y = currY + 8
         end
         -- Left: -8px X
     elseif dir == LEFT then
         if checkMovementEffect(currX - 8, currY) ~= 1 then
             addDirtyTile(currTileGridPos.r, currTileGridPos.c)
-            Player.sprite:moveTo(currX - 8, currY)
+            nonBlockingMovement = true
+            destination.x = currX - 8
+            destination.y = currY
         end
         -- Right: +8px X
     elseif dir == RIGHT then
         if checkMovementEffect(currX + 8, currY) ~= 1 then
             addDirtyTile(currTileGridPos.r, currTileGridPos.c)
-            Player.sprite:moveTo(currX + 8, currY)
+            nonBlockingMovement = true
+            destination.x = currX + 8
+            destination.y = currY
         end
     end
+    -- check for collisions with Enemy Actors
+    if nonBlockingMovement then
+        local actualPosX, actualPosY, collisionInfo, length = Player.sprite:moveWithCollisions(destination.x, destination.y)
+        -- We have collided with an Enemy Actor
+        if #collisionInfo >= 1 then
+            -- 1 because there COULD be multiple collisions detected            
+            enemyActor = collisionInfo[1].other
+            print("Collided with Actor: "..enemyActor.name)
+            Player:meleeAttack(enemyActor)
+        end
+    end
+end
+
+-- called when "bumping" into an Actor
+-- param enemyActor: Actor class 
+function Player:meleeAttack(enemyActor)
+    print("I'm attacking something!")
+    -- DEBUG: TODO: More complex Effects handling with effects tables later
+    effectType = "melee"
+    Player:hitCalculation(enemyActor, effectType)
+end
+
+-- TODO: ranged attacks are hard, do later
+function Player:rangedAttack()
+end
+
+-- called to determine attack adjustments on Enemy Actor
+-- param enemyActor: Actor class 
+function Player:hitCalculation(enemyActor, effectTable)
+    print("Rolling to effect: "..enemyActor.name.." with "..effectTable)
+    enemyActor:hitEffect(effectTable)
+end
+
+-- Player will adjust hp,mp,stats, etc from enemy/item effect
+function Player:hitEffect(effectTable)
+    print("I was hit by "..effectTable..", adjusting effects")
 end
 
 -- END PLAYER --
