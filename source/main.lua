@@ -23,14 +23,7 @@ function addDirtyTile(row, column)
     insert(dirtyTiles, { row, column })
 end
 
--- generate with default settings
-
--- generate with advanced settings,
--- params: (advanced, maxRooms, maxRoomSize, scatteringFactor)
--- dungeon:generateDungeon(true, 30, 10, 30)
-
 -- Helper function to convert the 30 x 50 split grid into x,y pixel values
-
 function tilePos2Coords(row, column)
     -- level matrix is 1 bigger x,y add offset, should fix this
     local gridOffset = -1
@@ -81,7 +74,6 @@ local function initPlayer()
     spawnPos = tilePos2Coords(spawnRC.r, spawnRC.c)
     Player:moveTo(spawnPos.x, spawnPos.y)
     Player:add()
-    return Player
 end
 
 -- handles cleaning up current level being displayed, prints the next dungeon,
@@ -111,15 +103,16 @@ function playdate.update()
     gfx.sprite.update()
     playdate.timer.updateTimers()
     if start then
-        Player = initPlayer()
+        initPlayer()
         dungeon.levels[currentLevel]:generateActors()
         dungeon.levels[currentLevel]:drawActors()
         start = false
     end
 
-    -- TODO: Button Callbacks
+    -- TODO: Button Callbacks or playdate.start/stop()
+    -- INTERACT BUTTON
     if playdate.buttonJustPressed(playdate.kButtonA) then
-        local currentTile = playerCurrentTile(Player.x, Player.y)
+        local currentTile = Player:currentTile(Player.x, Player.y)
         spawnInfo = nil
         if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
             spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)
@@ -130,22 +123,20 @@ function playdate.update()
             levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
         end
     end
+    -- MENU BUTTON
+    if playdate.buttonJustPressed(playdate.kButtonB) then
+        
+    end
     if playdate.buttonJustPressed(playdate.kButtonUp) then
         Player:moveIntent(UP)
-
     end
     if playdate.buttonJustPressed(playdate.kButtonDown) then
         Player:moveIntent(DOWN)
-
     end
     if playdate.buttonJustPressed(playdate.kButtonLeft) then
         Player:moveIntent(LEFT)
-
     end
     if playdate.buttonJustPressed(playdate.kButtonRight) then
         Player:moveIntent(RIGHT)
-
     end
-
-
 end

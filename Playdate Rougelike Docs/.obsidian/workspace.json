@@ -32,6 +32,26 @@
             }
           },
           {
+            "id": "7fcd4c2f36d69fe7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Effects.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "caf39ed1cad10956",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {}
+            }
+          },
+          {
             "id": "00948eb0d1028166",
             "type": "leaf",
             "state": {
@@ -44,7 +64,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -110,7 +130,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Combat System.md",
+                "file": "Effects.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +147,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Combat System.md",
+                "file": "Effects.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +170,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Combat System.md"
+                "file": "Effects.md"
               }
             }
           }
@@ -171,16 +191,17 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "f00d808ef74dc21c",
+  "active": "7fcd4c2f36d69fe7",
   "lastOpenFiles": [
-    "Stress.md",
-    "Player.md",
-    "Position.md",
-    "Combat System.md",
+    "Actor.md",
     "Level.md",
-    "Untitled.canvas",
-    "Tile.md",
-    "Dungeon.md",
-    "2022-12-20.md"
+    "Item.md",
+    "Effect.md",
+    "Effects.md",
+    "Player.md",
+    "Combat System.md",
+    "Stress.md",
+    "Position.md",
+    "Untitled.canvas"
   ]
 }

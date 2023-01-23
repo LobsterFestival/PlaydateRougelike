@@ -9,8 +9,6 @@ DOWN = 2
 LEFT = 3
 RIGHT = 4
 
-
-
 class('PlayerClass').extends(gfx.sprite)
 PLAYER_SPRITE_GROUP = 1
 local playerImage = gfx.image.new("images/PLAYER")
@@ -66,7 +64,7 @@ function playerGetNextLevelSpawnStair(stair, currentLevel)
 end
 
 -- returns current Tile object player is standing on
-function PlayerClass:playerCurrentTile()
+function PlayerClass:currentTile()
     local currentTile = coords2TilePos(self.x, self.y)
     local currentPlayerTile = dungeon.levels[currentLevel].matrix[currentTile.r][currentTile.c]
     return currentPlayerTile
@@ -79,9 +77,6 @@ function PlayerClass:checkMovementEffect(x, y)
     if tileToMoveTo:isWall() then
         return 1
     end
-    -- Bumping into Enemy Actor
-
-    -- TODO: add checks for closed doors
 end
 
 function PlayerClass:moveIntent(dir)
@@ -144,7 +139,7 @@ end
 function PlayerClass:meleeAttack(enemyActor)
     print("I'm attacking something!")
     -- DEBUG: TODO: More complex Effects handling with effects tables later
-    effectType = "melee"
+    local effectType = "melee"
     self:hitCalculation(enemyActor, effectType)
 end
 
