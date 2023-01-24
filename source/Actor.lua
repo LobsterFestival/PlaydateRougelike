@@ -26,7 +26,7 @@ function createActor(actorInfo)
     actor.hp = actorInfo.hp
     actor.mp = actorInfo.mp
     actor.stats = actorInfo.stats
-    -- TODO: assign other actor information
+    -- TODO: assign other actor information, equipped item, items to drop
     return actor
 end
 
@@ -59,15 +59,14 @@ function Actor:rangedAttack()
 end
 
 -- When Player attacks Actor
-function Actor:hitCalculation(effectTable)
-    print(self.name.." is attacking Player with"..effectTable)
-    Player:hitEffect(effectTable)
+function Actor:hitCalculation(item)
+    print(self.name.." is attacking Player with"..item.name)
+    Player:hitEffect(item)
 end
 
 -- Actor will adjust hp,mp,stats, etc from Player/item effect
 -- currently only Player will be able to damage enemy actors
 -- param adjustments: effect table of what to adjust
--- DEBUG: TODO: effect table is just a string right now
-function Actor:hitEffect(effectTable)
-    print(self.name.." was hit by player with "..effectTable)
+function Actor:hitEffect(item)
+    print(self.name.." was hit by player with "..item.name)
 end

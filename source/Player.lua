@@ -2,6 +2,7 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "Dungeon"
+import "Item"
 local gfx <const> = playdate.graphics
 -- PLAYER --
 UP = 1
@@ -21,7 +22,8 @@ playerInfo = {
     hp = 10,
     mp = 10,
     stats = { STR = 1, DEX = 3, CON = 1, INT = 1 },
-    inventory = nil
+    inventory = nil,
+    eqiuppedWeapon = nil
 }
 
 function createPlayer(playerInfo)
@@ -39,6 +41,7 @@ function createPlayer(playerInfo)
     player.mp = playerInfo.mp
     player.stats = playerInfo.stats
     player.inventory = playerInfo.inventory
+    player.eqiuppedWeapon = playerInfo.eqiuppedWeapon
     return player
 end
 
@@ -137,10 +140,9 @@ end
 -- called when "bumping" into an Actor
 -- param enemyActor: Actor class 
 function PlayerClass:meleeAttack(enemyActor)
-    print("I'm attacking something!")
-    -- DEBUG: TODO: More complex Effects handling with effects tables later
-    local effectType = "melee"
-    self:hitCalculation(enemyActor, effectType)
+    print("I'm attacking something with melee!")
+    
+    self:hitCalculation(enemyActor, self.eqiuppedWeapon)
 end
 
 -- TODO: ranged attacks are hard, do later
@@ -149,14 +151,16 @@ end
 
 -- called to determine attack adjustments on Enemy Actor
 -- param enemyActor: Actor class 
-function PlayerClass:hitCalculation(enemyActor, effectTable)
-    print("Rolling to effect: "..enemyActor.name.." with "..effectTable)
-    enemyActor:hitEffect(effectTable)
+-- param item: Item class of Item being used to deal some effect
+function PlayerClass:hitCalculation(enemyActor, item)
+    print("Rolling to effect: "..enemyActor.name.." with "..item.name)
+    -- DEBUG: will have actual hit chances here, for now just pass to hitEffect
+    enemyActor:hitEffect(item)
 end
 
 -- Player will adjust hp,mp,stats, etc from enemy/item effect
-function PlayerClass:hitEffect(effectTable)
-    print("I was hit by "..effectTable..", adjusting effects")
+function PlayerClass:hitEffect(item)
+    print("I was hit by "..item.name..", adjusting effects")
 end
 
 -- END PLAYER --

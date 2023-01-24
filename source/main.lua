@@ -8,6 +8,7 @@ import "CoreLibs/timer"
 import "Dungeon"
 import "Player"
 import "Common"
+import "Item"
 local gfx <const> = playdate.graphics
 local insert = table.insert
 
@@ -64,6 +65,9 @@ end
 local function initPlayer()
     if (not Player) then
         print("creating player")
+        -- DEBUG: will be created during Player creation screen
+        playerSword = createItem(i_sword)
+        playerInfo.eqiuppedWeapon = playerSword
         Player = createPlayer(playerInfo)
     end
     local validSpawns = dungeon.levels[1].floorTilesArray
