@@ -12,3 +12,10 @@ i_sword = {
     image = defaultItemImg,
     effect = basicMeleeAttackET
 }
+
+i_potionOfStrength = {
+    name = "Potion of Strength",
+    desc = "Increases STR by 1 for 10 Turns.",
+    image = defaultItemImg,
+    effect = buffStrength10
+}

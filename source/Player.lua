@@ -22,8 +22,9 @@ playerInfo = {
     hp = 10,
     mp = 10,
     stats = { STR = 1, DEX = 3, CON = 1, INT = 1 },
-    inventory = nil,
-    eqiuppedWeapon = nil
+    inventory = {},
+    eqiuppedWeapon = nil,
+    currentEffects = {}
 }
 
 function createPlayer(playerInfo)
@@ -42,6 +43,7 @@ function createPlayer(playerInfo)
     player.stats = playerInfo.stats
     player.inventory = playerInfo.inventory
     player.eqiuppedWeapon = playerInfo.eqiuppedWeapon
+    player.currentEffects = playerInfo.currentEffects
     return player
 end
 
@@ -140,9 +142,13 @@ end
 -- called when "bumping" into an Actor
 -- param enemyActor: Actor class 
 function PlayerClass:meleeAttack(enemyActor)
-    print("I'm attacking something with melee!")
-    
+    print("I'm attacking something with melee!") 
     self:hitCalculation(enemyActor, self.eqiuppedWeapon)
+end
+
+-- TODO: better inventory handling for when we interact with the inventory screen
+function PlayerClass:useItem(item)
+    
 end
 
 -- TODO: ranged attacks are hard, do later

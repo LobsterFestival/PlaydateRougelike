@@ -17,9 +17,47 @@ height = 30
 width = 50
 nrOfLevels = 2
 
--- global table containing row and column values of tiles that need to be redrawn
+-- ##### GLOBALS ##### --
+-- table containing row and column values of tiles that need to be redrawn
 dirtyTiles = {}
+start = true
+currentLevel = 1
+Player = nil
 
+-- ##### END GLOBALS ##### --
+local gameScreenInputHandlers = {
+    upButtonDown = function()
+        Player:moveIntent(UP)
+        playerPhaseComplete = true
+    end,
+    downButtonDown = function()
+        Player:moveIntent(DOWN)
+        playerPhaseComplete = true
+    end,
+    leftButtonDown = function()
+        Player:moveIntent(LEFT)
+        playerPhaseComplete = true
+    end,
+    rightButtonDown = function()
+        Player:moveIntent(RIGHT)
+        playerPhaseComplete = true
+    end,
+    AButtonDown = function()
+        local currentTile = Player:currentTile(Player.x, Player.y)
+        spawnInfo = nil
+        if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
+            spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)
+        end
+        if spawnInfo ~= nil then
+            nextLevel = currentLevel + spawnInfo.offset
+            currentLevel = nextLevel
+            levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
+        end
+    end,
+    BButtonDown = function()
+        print("Im gonna be the menu button!~")
+    end
+}
 function addDirtyTile(row, column)
     insert(dirtyTiles, { row, column })
 end
@@ -66,8 +104,10 @@ local function initPlayer()
     if (not Player) then
         print("creating player")
         -- DEBUG: will be created during Player creation screen
-        playerSword = createItem(i_sword)
+        local playerSword = createItem(i_sword)
+        local potionOfStrength = createItem(i_potionOfStrength)
         playerInfo.eqiuppedWeapon = playerSword
+        insert(playerInfo.inventory, potionOfStrength)
         Player = createPlayer(playerInfo)
     end
     local validSpawns = dungeon.levels[1].floorTilesArray
@@ -94,13 +134,13 @@ function levelTransition(nextLevel, x, y)
     newLevel:drawActors()
 end
 
-start = true
--- Currently displayed dungeon.levels[i]
-currentLevel = 1
-Player = nil
+-- DEBUG: testing Turn Counter
+turnCount = 0
+-- Set input handler to gameScreenMovement
+playdate.inputHandlers.push(gameScreenInputHandlers)
 -- Main Game Loop --
 function playdate.update()
-
+    playerPhaseComplete = false
     if start then
         initBackground()
     end
@@ -112,35 +152,10 @@ function playdate.update()
         dungeon.levels[currentLevel]:drawActors()
         start = false
     end
-
-    -- TODO: Button Callbacks or playdate.start/stop()
-    -- INTERACT BUTTON
-    if playdate.buttonJustPressed(playdate.kButtonA) then
-        local currentTile = Player:currentTile(Player.x, Player.y)
-        spawnInfo = nil
-        if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
-            spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)
-        end
-        if spawnInfo ~= nil then
-            nextLevel = currentLevel + spawnInfo.offset
-            currentLevel = nextLevel
-            levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
-        end
-    end
-    -- MENU BUTTON
-    if playdate.buttonJustPressed(playdate.kButtonB) then
-        
-    end
-    if playdate.buttonJustPressed(playdate.kButtonUp) then
-        Player:moveIntent(UP)
-    end
-    if playdate.buttonJustPressed(playdate.kButtonDown) then
-        Player:moveIntent(DOWN)
-    end
-    if playdate.buttonJustPressed(playdate.kButtonLeft) then
-        Player:moveIntent(LEFT)
-    end
-    if playdate.buttonJustPressed(playdate.kButtonRight) then
-        Player:moveIntent(RIGHT)
+    if playerPhaseComplete then
+        print("Enemy Phase: Enemies are doing things...")
+        -- Check effects for enemy actors BEFORE turn count goes up
+        turnCount += 1
+        print("Turn "..turnCount.." is complete!\n")
     end
 end
