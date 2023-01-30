@@ -24,7 +24,7 @@ playerInfo = {
     stats = { STR = 1, DEX = 3, CON = 1, INT = 1 },
     inventory = {},
     eqiuppedWeapon = nil,
-    currentEffects = {}
+    activeEffects = {}
 }
 
 function createPlayer(playerInfo)
@@ -32,7 +32,7 @@ function createPlayer(playerInfo)
     player:setImage(playerInfo.image)
     -- set center to top left so everything aligns to 30 x 50 grid
     player:setCenter(0, 0)
-    player:setCollideRect(0,0, player:getSize())
+    player:setCollideRect(0, 0, player:getSize())
     player:setGroups(PLAYER_SPRITE_GROUP)
     player:setCollidesWithGroups(ACTOR_SPRITE_GROUP)
     player.collisionResponse = gfx.sprite.kCollisionTypeFreeze
@@ -43,14 +43,20 @@ function createPlayer(playerInfo)
     player.stats = playerInfo.stats
     player.inventory = playerInfo.inventory
     player.eqiuppedWeapon = playerInfo.eqiuppedWeapon
-    player.currentEffects = playerInfo.currentEffects
+    player.activeEffects = playerInfo.activeEffects
     return player
+end
+
+function PlayerClass:__tostring()
+    return self.name
 end
 
 -- handles moving player between aStair and dStairs between dungeon.levels[] changes
 -- params: stair: tile object of either aStair or dStair used to determine stair
 -- to spawn on in level transported to
 -- returns table of stair to spawn on, and whether we are goin up or down a level
+-- TODO: Level generation needs to spawn valid stairs on all levels for this to work
+-- TODO: move out of PlayerClass into Level(?)
 function playerGetNextLevelSpawnStair(stair, currentLevel)
     spawnStair = {}
     if stair.class.name == "aStair" then
@@ -75,7 +81,7 @@ function PlayerClass:currentTile()
     return currentPlayerTile
 end
 
--- Player Movement and intent
+-- Check that we can move to that tile
 function PlayerClass:checkMovementEffect(x, y)
     local nextTilePos = coords2TilePos(x, y)
     tileToMoveTo = dungeon.levels[1].matrix[nextTilePos.r][nextTilePos.c]
@@ -84,9 +90,8 @@ function PlayerClass:checkMovementEffect(x, y)
     end
 end
 
+-- Part of PlayerPhase
 function PlayerClass:moveIntent(dir)
-    -- TODO: add calls to function for checking collisions with
-    -- Actors, Items, etc.
     local currX = self.x
     local currY = self.y
     -- row and column of actors current position
@@ -126,47 +131,70 @@ function PlayerClass:moveIntent(dir)
             destination.y = self.y
         end
     end
+    -- Regardless of valid movement, check effects
+    self:activeEffectsProc()
     -- check for collisions with Enemy Actors
     if nonBlockingMovement then
         local actualPosX, actualPosY, collisionInfo, length = Player:moveWithCollisions(destination.x, destination.y)
         -- We have collided with an Enemy Actor
         if #collisionInfo >= 1 then
-            -- 1 because there COULD be multiple collisions detected            
+            -- 1 because there COULD be multiple collisions detected
             enemyActor = collisionInfo[1].other
-            print("Collided with Actor: "..enemyActor.name)
+            print("Collided with Actor: " .. enemyActor.name)
             self:meleeAttack(enemyActor)
+        end
+    end
+    -- End of Player Phase, remove effects that have expired
+    -- TODO: do we do this here?
+    self:activeEffectsRemoval()
+end
+
+-- called when "bumping" into an Actor
+-- param enemyActor: Actor class
+function PlayerClass:meleeAttack(enemyActor)
+    print("I'm attacking " .. enemyActor.name .. " with melee!")
+    self.eqiuppedWeapon:useItem(enemyActor)
+end
+
+-- called to determine attack adjustments on Enemy Actor
+-- param enemyActor: Actor class
+-- param item: Item class of Item being used to deal some effect
+function PlayerClass:hitCalculation(enemyActor, item)
+    print("Rolling to effect: " .. enemyActor.name .. " with " .. item.name)
+    -- DEBUG: will have actual hit chances here, for now just pass to hitEffect
+    return 1
+end
+
+-- Called when entering player phase
+-- Checks if any effects need to be removed from Player.activeEffects
+-- Checks if any effects need to be applyed again this turn (someEffectTable.overTime == true)
+function PlayerClass:activeEffectsProc()
+    -- apply effects
+    if #self.activeEffects ~= 0 then
+        for k, v in pairs(self.activeEffects) do
+            if v.overTime then
+                print(v.name .. " is procing!")
+                k:applyEffect(self)
+            end
+            -- decrement turn counter
+            v.turns = v.turns - 1
         end
     end
 end
 
--- called when "bumping" into an Actor
--- param enemyActor: Actor class 
-function PlayerClass:meleeAttack(enemyActor)
-    print("I'm attacking something with melee!") 
-    self:hitCalculation(enemyActor, self.eqiuppedWeapon)
+-- Called at very end of player phase
+-- Checks if any effects have a turn counter of zero and removes them from active effects.
+function PlayerClass:activeEffectsRemoval()
+    if #self.activeEffects ~= 0 then
+        for k, v in pairs(self.activeEffects) do
+            if v.turns <= 0 then
+                print(v.name .. " has expired! removing")
+                -- TODO: check this is right removal code
+                k = nil
+            end
+        end
+    end
 end
 
--- TODO: better inventory handling for when we interact with the inventory screen
-function PlayerClass:useItem(item)
-    
-end
-
--- TODO: ranged attacks are hard, do later
-function PlayerClass:rangedAttack()
-end
-
--- called to determine attack adjustments on Enemy Actor
--- param enemyActor: Actor class 
--- param item: Item class of Item being used to deal some effect
-function PlayerClass:hitCalculation(enemyActor, item)
-    print("Rolling to effect: "..enemyActor.name.." with "..item.name)
-    -- DEBUG: will have actual hit chances here, for now just pass to hitEffect
-    enemyActor:hitEffect(item)
-end
-
--- Player will adjust hp,mp,stats, etc from enemy/item effect
-function PlayerClass:hitEffect(item)
-    print("I was hit by "..item.name..", adjusting effects")
-end
 
 -- END PLAYER --

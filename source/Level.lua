@@ -11,8 +11,10 @@ local max = math.max
 local insert = table.insert
 
 seed = playdate.getSecondsSinceEpoch()
-math.randomseed(seed)
--- print("seed: "..seed)  -- for debugging
+-- DEBUG: static seed with convinent enemy placement
+DEBUGSEED = 728428767
+math.randomseed(DEBUGSEED)
+print("Level seed: "..DEBUGSEED)  -- for debugging
 
 ---------------------------------------------------------------------------------------
 -- - - - - - - - - - - - - - - - - - - Level object - - - - - - - - - - - - - - -- - --

@@ -2,7 +2,7 @@
 import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
-import "EffectsDefinitions"
+import "Effect"
 import "ItemDefinitions"
 
 local gfx <const> = playdate.graphics
@@ -19,7 +19,8 @@ function createItem(itemInfo)
     -- Collisions?
     item.name = itemInfo.name
     item.desc = itemInfo.desc
-    item.effect = itemInfo.effect
+    -- create instance of EffectTable for this Item
+    item.effect = EffectTable:create(itemInfo.effect)
     return item
 end
 
@@ -30,4 +31,7 @@ end
 function Item:removeFromInventory()
 end
 
--- TODO: Other Item class functions
+function Item:useItem(actor)
+    -- TODO: if consumable, remove item too
+    self.effect:applyEffect(actor)
+end

@@ -1,5 +1,6 @@
 -- This file contains definitions for all Items and Equipment,
--- Each item will have an effect table that determines what it affects
+-- Each item def will have an an effect table that determines what it affects
+-- Effect Table instance is created on Item Instance creation
 import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "EffectsDefinitions"
@@ -10,12 +11,12 @@ i_sword = {
     name = "Sword",
     desc = "A Sword, sharp!",
     image = defaultItemImg,
-    effect = basicMeleeAttackET
+    effect = basicMeleeAttack
 }
 
 i_potionOfStrength = {
     name = "Potion of Strength",
     desc = "Increases STR by 1 for 10 Turns.",
     image = defaultItemImg,
-    effect = buffStrength10
+    effect = str1turn10
 }

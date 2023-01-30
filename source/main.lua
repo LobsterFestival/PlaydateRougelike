@@ -53,6 +53,7 @@ local gameScreenInputHandlers = {
             currentLevel = nextLevel
             levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
         end
+        -- TODO: eventually menuing and picking up items on the ground will also end Player Phase
     end,
     BButtonDown = function()
         print("Im gonna be the menu button!~")
@@ -138,9 +139,9 @@ end
 turnCount = 0
 -- Set input handler to gameScreenMovement
 playdate.inputHandlers.push(gameScreenInputHandlers)
+
 -- Main Game Loop --
 function playdate.update()
-    playerPhaseComplete = false
     if start then
         initBackground()
     end
@@ -155,7 +156,18 @@ function playdate.update()
     if playerPhaseComplete then
         print("Enemy Phase: Enemies are doing things...")
         -- Check effects for enemy actors BEFORE turn count goes up
+        -- Apply DoTs/HoTs effects 
+        -- HP check, remove if <= 0
+        for k, actor in pairs(dungeon.levels[currentLevel].actors) do
+            print("DEBUG: checking state of "..actor.name)
+            if actor.hp <= 0 then
+                print(actor.name.." is dead!")
+                actor:dead()
+                table.remove(dungeon.levels[currentLevel].actors, k)
+            end
+        end
         turnCount += 1
         print("Turn "..turnCount.." is complete!\n")
     end
+    playerPhaseComplete = false
 end

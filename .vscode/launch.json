@@ -21,19 +21,5 @@
             "isDefault": true
           }
         }
-      ],
-    "configurations": [
-        {
-            "type": "playdate",
-            "request": "launch",
-            "name": "Build and Run (Simulator)",
-            "preLaunchTask": "Build and Run (Simulator)"
-        },
-        {
-          "type": "playdate",
-          "request": "launch",
-          "name": "Playdate: Debug",
-          "preLaunchTask": "${defaultBuildTask}"
-        }
-    ]
+      ]
 }
