@@ -12,7 +12,7 @@ RIGHT = 4
 
 class('PlayerClass').extends(gfx.sprite)
 PLAYER_SPRITE_GROUP = 1
-local playerImage = gfx.image.new("images/PLAYER")
+local playerImage = gfx.image.new("images/ACTORS/PLAYER")
 
 -- TODO: DEBUG: this information will be populated from character creation menus eventually
 playerInfo = {

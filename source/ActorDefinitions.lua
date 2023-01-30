@@ -2,10 +2,10 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 local gfx <const> = playdate.graphics
 ----- Image Loading -----
-goblinImg = gfx.image.new("images/GOBLIN")
-batImg = gfx.image.new("images/BAT")
-frogImg = gfx.image.new("images/FROG")
-warlockImg = gfx.image.new("images/WARLOCK")
+goblinImg = gfx.image.new("images/ACTORS/GOBLIN")
+batImg = gfx.image.new("images/ACTORS/BAT")
+frogImg = gfx.image.new("images/ACTORS/FROG")
+warlockImg = gfx.image.new("images/ACTORS/WARLOCK")
 -- This file defines all actor information tables, seperated to keep clean
 -- TODO: add other values to actor defs
 goblin = {

@@ -59,6 +59,7 @@ local gameScreenInputHandlers = {
         print("Im gonna be the menu button!~")
     end
 }
+
 function addDirtyTile(row, column)
     insert(dirtyTiles, { row, column })
 end

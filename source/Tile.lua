@@ -24,14 +24,14 @@ end
 Tile = { class, roomId, img, name }
 Tile.__index = Tile
 
-emptyImg  = gfx.image.new("images/EMPTY")
-floorImg  = gfx.image.new("images/FLOOR_FULL")
-wallImg   = gfx.image.new("images/WALL")
-aStairImg = gfx.image.new("images/UP_STAIR")
-dStairImg = gfx.image.new("images/DOWN_STAIR")
-soilImg   = gfx.image.new("images/SOIL")
-cDoorImg  = gfx.image.new("images/C_DOOR")
-oDoorImg  = gfx.image.new("images/O_DOOR")
+emptyImg  = gfx.image.new("images/TILES/EMPTY")
+floorImg  = gfx.image.new("images/TILES/FLOOR_FULL")
+wallImg   = gfx.image.new("images/TILES/WALL")
+aStairImg = gfx.image.new("images/TILES/UP_STAIR")
+dStairImg = gfx.image.new("images/TILES/DOWN_STAIR")
+soilImg   = gfx.image.new("images/TILES/SOIL")
+cDoorImg  = gfx.image.new("images/TILES/C_DOOR")
+oDoorImg  = gfx.image.new("images/TILES/O_DOOR")
 
 -- Can't compare gfx.image objects, use this as a hacky work arround and compare strings instead!
 Tile.EMPTY      = {img = emptyImg, name = "empty"}
