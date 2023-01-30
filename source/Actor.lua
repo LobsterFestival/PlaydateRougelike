@@ -37,6 +37,11 @@ function Actor:__tostring()
     return self.name
 end
 
+function Actor:currentTileRC()
+    local currentTileRC = coords2TilePos(self.x, self.y)
+    return currentTileRC
+end
+
 -- Add actor to screen at x, y position
 function Actor:addToScreen(x, y)
     self:moveTo(x, y)
@@ -45,15 +50,19 @@ end
 
 -- Remove Actor from screen and cleanup tasks
 function Actor:dead()
+    -- Mark tile Actor is on as dirty
+    currentTile = self:currentTileRC()
+    addDirtyTile(currentTile.r, currentTile.c)
     self:remove()
     -- TODO: handle spawning dropped items
-    print(self.name.." drops some items")
+    print(self.name .. " drops some items")
 end
 
 function Actor:moveIntent()
     print(self.name .. " wants to move somewhere!")
 end
 
+-- called when "bumping" into player
 function Actor:meleeAttack()
     print(self.name .. " is attacking something!")
 end
@@ -92,10 +101,12 @@ function Actor:activeEffectsRemoval()
         for k, v in pairs(self.activeEffects) do
             if v.turns <= 0 then
                 print(v.name .. " has expired! removing")
-                -- TODO: check this is right removal code
-                k = nil
+                table.remove(self.activeEffects,k)
             end
         end
     end
+    if self.hp <= 0 then
+        print(self.name.." is dead!")
+        self:dead()
+    end
 end
-

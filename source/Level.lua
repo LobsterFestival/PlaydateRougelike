@@ -141,10 +141,23 @@ end
 
 -- add all actors to screen
 function Level:drawActors()
-  -- TODO: is next faster than this?
   for k, v in pairs(self.actors) do
     v:add()
   end
+end
+
+-- Called after Player Phase 
+-- runs intents and checks on all actors in level
+function Level:enemyPhase()
+  -- TODO: move intents/AI calls
+  for k, actor in pairs(self.actors) do
+    print("DEBUG: checking state of "..actor.name)
+    if actor.hp <= 0 then
+        print(actor.name.." is dead!")
+        actor:dead()
+        table.remove(self.actors, k)
+    end
+end
 end
 
 -- TODO: add draw function for drawing actors only when we enter a room.

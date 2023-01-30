@@ -51,6 +51,11 @@ function PlayerClass:__tostring()
     return self.name
 end
 
+-- TODO: will link to game over screen eventually
+function PlayerClass:dead()
+    print("Player has died, oh no!")
+end
+
 -- handles moving player between aStair and dStairs between dungeon.levels[] changes
 -- params: stair: tile object of either aStair or dStair used to determine stair
 -- to spawn on in level transported to
@@ -189,10 +194,13 @@ function PlayerClass:activeEffectsRemoval()
         for k, v in pairs(self.activeEffects) do
             if v.turns <= 0 then
                 print(v.name .. " has expired! removing")
-                -- TODO: check this is right removal code
-                k = nil
+                table.remove(self.activeEffects,k)
             end
         end
+    end
+    if self.hp <= 0 then
+        print(self.name.." is dead!")
+        self:dead()
     end
 end
 

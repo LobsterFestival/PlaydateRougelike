@@ -155,19 +155,9 @@ function playdate.update()
     end
     if playerPhaseComplete then
         print("Enemy Phase: Enemies are doing things...")
-        -- Check effects for enemy actors BEFORE turn count goes up
-        -- Apply DoTs/HoTs effects 
-        -- HP check, remove if <= 0
-        for k, actor in pairs(dungeon.levels[currentLevel].actors) do
-            print("DEBUG: checking state of "..actor.name)
-            if actor.hp <= 0 then
-                print(actor.name.." is dead!")
-                actor:dead()
-                table.remove(dungeon.levels[currentLevel].actors, k)
-            end
-        end
+        dungeon.levels[currentLevel]:enemyPhase()
         turnCount += 1
-        print("Turn "..turnCount.." is complete!\n")
+        print("Turn " .. turnCount .. " is complete!\n")
     end
     playerPhaseComplete = false
 end
