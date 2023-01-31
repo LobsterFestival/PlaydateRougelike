@@ -64,17 +64,22 @@ end
 -- TODO: move out of PlayerClass into Level(?)
 function playerGetNextLevelSpawnStair(stair, currentLevel)
     spawnStair = {}
+    local transitionOffset = 0
     if stair.class.name == "aStair" then
-        local transitionOffset = 1
+        print("Going Up~")
+        transitionOffset = -1
+        -- Going up when on first floor
+        if currentLevel + transitionOffset == 0 then
+            return {x = 0, y = 0, offset = transitionOffset}
+        end
         spawnStair = dungeon.levels[currentLevel + transitionOffset].dStairLocation
     elseif stair.class.name == "dStair" then
-        local transitionOffset = -1
+        print("Going Down~")
+        transitionOffset = 1
         spawnStair = dungeon.levels[currentLevel + transitionOffset].aStairLocation
     else
         return nil
     end
-    -- Will have to ensure every level has 1 up and 1 down stair on each level
-    assert(spawnStair ~= nil)
     local xy = tilePos2Coords(spawnStair[1].r, spawnStair[1].c)
     return { x = xy.x, y = xy.y, offset = transitionOffset }
 end
@@ -82,14 +87,14 @@ end
 -- returns current Tile object player is standing on
 function PlayerClass:currentTile()
     local currentTile = coords2TilePos(self.x, self.y)
-    local currentPlayerTile = dungeon.levels[currentLevel].matrix[currentTile.r][currentTile.c]
+    local currentPlayerTile = dungeon.levels[currentFloor].matrix[currentTile.r][currentTile.c]
     return currentPlayerTile
 end
 
 -- Check that we can move to that tile
 function PlayerClass:checkMovementEffect(x, y)
     local nextTilePos = coords2TilePos(x, y)
-    tileToMoveTo = dungeon.levels[1].matrix[nextTilePos.r][nextTilePos.c]
+    tileToMoveTo = dungeon.levels[currentFloor].matrix[nextTilePos.r][nextTilePos.c]
     if tileToMoveTo:isWall() then
         return 1
     end

@@ -21,7 +21,7 @@ nrOfLevels = 2
 -- table containing row and column values of tiles that need to be redrawn
 dirtyTiles = {}
 start = true
-currentLevel = 1
+currentFloor = 1
 Player = nil
 
 -- ##### END GLOBALS ##### --
@@ -46,11 +46,11 @@ local gameScreenInputHandlers = {
         local currentTile = Player:currentTile(Player.x, Player.y)
         spawnInfo = nil
         if currentTile.class.name == "aStair" or currentTile.class.name == "dStair" then
-            spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentLevel)
+            spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentFloor)
         end
         if spawnInfo ~= nil then
-            nextLevel = currentLevel + spawnInfo.offset
-            currentLevel = nextLevel
+            local nextLevel = currentFloor + spawnInfo.offset            
+            print("Next Floor is: "..nextLevel)
             levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
         end
         -- TODO: eventually menuing and picking up items on the ground will also end Player Phase
@@ -96,13 +96,13 @@ local function initBackground()
                 --  clear dirty tiles
                 dirtyTiles = {}
             else
-                dungeon:printDungeon(currentLevel):draw(0, 0)
+                dungeon:printDungeon(currentFloor):draw(0, 0)
             end
         end
     )
 end
 
-local function initPlayer()
+local function initPlayer(x,y)
     if (not Player) then
         print("creating player")
         -- DEBUG: will be created during Player creation screen
@@ -112,7 +112,13 @@ local function initPlayer()
         insert(playerInfo.inventory, potionOfStrength)
         Player = createPlayer(playerInfo)
     end
-    local validSpawns = dungeon.levels[1].floorTilesArray
+    -- if we have specified a x and y, place player there and return
+    if x then
+        Player:moveTo(x,y)
+        Player:add()
+        return
+    end
+    local validSpawns = dungeon.levels[currentFloor].floorTilesArray
     -- this will return the Row and Column (level.matrix) of a valid floor tile
     -- this needs to be converted to the correct x and y values for player sprite placement
     -- TODO: can get tile x,y from image at that grid location, refactor
@@ -125,15 +131,21 @@ end
 -- handles cleaning up current level being displayed, prints the next dungeon,
 -- and places player at x, y
 function levelTransition(nextLevel, x, y)
+    -- Going up when on first floor returns to main menu
+    if nextLevel == 0 then
+        print("DEBUG: Going to main menu! (eventually)")
+        return
+    end
+    -- Clear current actors off screen
     gfx.clear()
-    -- TODO: smelly call
-    local newLevel = dungeon.levels[nextLevel]
-    newLevel:printDungeon(nextLevel)
-    Player:moveTo(x, y)
-    Player:add()
-    -- Generate actors for newLevel
-    newLevel:generateActors()
-    newLevel:drawActors()
+    dungeon.levels[currentFloor]:undrawActors()
+    -- Setup next level
+    currentFloor = nextLevel
+    initBackground()
+    gfx.sprite.update()
+    playdate.timer.updateTimers()
+    initPlayer(x,y)
+    dungeon.levels[currentFloor]:drawActors()
 end
 
 -- DEBUG: testing Turn Counter
@@ -150,13 +162,13 @@ function playdate.update()
     playdate.timer.updateTimers()
     if start then
         initPlayer()
-        dungeon.levels[currentLevel]:generateActors()
-        dungeon.levels[currentLevel]:drawActors()
+        dungeon.levels[currentFloor]:generateActors()
+        dungeon.levels[currentFloor]:drawActors()
         start = false
     end
     if playerPhaseComplete then
         print("Enemy Phase: Enemies are doing things...")
-        dungeon.levels[currentLevel]:enemyPhase()
+        dungeon.levels[currentFloor]:enemyPhase()
         turnCount += 1
         print("Turn " .. turnCount .. " is complete!\n")
     end

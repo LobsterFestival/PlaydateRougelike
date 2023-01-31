@@ -13,8 +13,8 @@ local insert = table.insert
 seed = playdate.getSecondsSinceEpoch()
 -- DEBUG: static seed with convinent enemy placement
 DEBUGSEED = 728428767
-math.randomseed(DEBUGSEED)
-print("Level seed: "..DEBUGSEED)  -- for debugging
+math.randomseed(seed)
+print("Level seed: "..seed)  -- for debugging
 
 ---------------------------------------------------------------------------------------
 -- - - - - - - - - - - - - - - - - - - Level object - - - - - - - - - - - - - - -- - --
@@ -143,6 +143,12 @@ end
 function Level:drawActors()
   for k, v in pairs(self.actors) do
     v:add()
+  end
+end
+
+function Level:undrawActors()
+  for k, v in pairs(self.actors) do
+    v:remove()
   end
 end
 
@@ -429,7 +435,8 @@ function Level:addStaircases(maxStaircases)
 
   repeat
     local room = self:getRandRoom()
-    if not room.hasStaircase or #self.rooms == 1 then
+    if not room.hasStaircase then
+      print("DEBUG: placing staircase in "..room.id)
       self:placeStaircase(room, staircases)
       staircases = staircases - 1
     end
@@ -477,22 +484,27 @@ end
 
 function Level:placeStaircase(room, staircases)
   -- Places staircase in given room.
-  -- Position is random number of steps away from center.
+  -- DEBUG: Position is 2 steps away from center.
+  local steps = 2
 
-  local steps = random(0, floor(self.maxRoomSize / 2))
-
-  local nrow, ncol = room.center[1], room.center[2]
+  -- get center of room
+  local roomCenterRow, roomCenterCol = room.center[1], room.center[2]
+  local row, col = roomCenterRow, roomCenterCol
+  -- Get random neighbors until we have left the room or our steps are complete
   repeat
-    local row, col = nrow, ncol
+    -- Get random neighbor of center tile until we have a floor tile
     repeat
       nrow, ncol = getRandNeighbour(row, col)
-    until self:getTile(nrow, ncol).class == Tile.FLOOR
+    until self:getTile(nrow, ncol):isFloor()
+    row, col = nrow, ncol
     steps = steps - 1
   until (self:getTile(nrow, ncol).roomId ~= room.id or steps <= 0)
 
   if staircases % 2 == 0 then
+    print("DEBUG: placing down stairs at: "..row.." "..col)
     self:getTile(row, col).class = Tile.D_STAIRCASE
   else
+    print("DEBUG: placing up stairs at: "..row.." "..col)
     self:getTile(row, col).class = Tile.A_STAIRCASE
   end
   room.hasStaircase = true
