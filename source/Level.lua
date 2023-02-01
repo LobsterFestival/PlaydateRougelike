@@ -2,6 +2,8 @@ import "helpFunctions"
 import "Tile"
 import "Room"
 import "Actor"
+-- pure lua A* pathfinding library, Credits: https://github.com/wesleywerner/lua-star
+luastar = import "lua-star"
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
@@ -9,12 +11,14 @@ local min = math.min
 local max = math.max
 local insert = table.insert
 
+
 seed = playdate.getSecondsSinceEpoch()
 -- DEBUG: static seed with convinent enemy placement
 DEBUGSEED = 728428767
 math.randomseed(seed)
 print("Level seed: "..seed)  -- for debugging
-
+SCREENHEIGHT = 240
+SCREENWIDTH = 400
 ---------------------------------------------------------------------------------------
 -- - - - - - - - - - - - - - - - - - - Level object - - - - - - - - - - - - - - -- - --
 ---------------------------------------------------------------------------------------
@@ -49,8 +53,6 @@ function Level:new(height, width)
     doorTilesArray = {},
     aStairLocation = {},
     dStairLocation = {},
-    pathfindingArray = {}, -- e.g {{x,y},{x,y}}
-    pathfinder = nil,
     actors = {}
   }
   level.maxRoomSize = ceil(min(height, width) / 10) + 5
@@ -78,8 +80,6 @@ function Level:generateLevel()
   -- Level Generation Complete
 
   self:trackImportantTiles()
-  self:createPathfindingArray()
-  self:buildPathfindingGrid(self.pathfindingArray)
   -- only currently displayed levels should generate and display their Actors
   -- self:generateActors()
 
@@ -129,32 +129,6 @@ function Level:addImportantTile(R, C, importantTile)
   end
 end
 
--- convert floor, cDoor, oDoor tiles row and col values to x,y positions
--- and place inside self.pathfindingArray
-function Level:createPathfindingArray()
-  local temp = {}
-  for k,v in pairs(self.floorTilesArray) do
-    insert(temp,v)
-  end
-  for k,v in pairs(self.doorTilesArray) do
-    insert(temp,v)
-  end
-  for k,v in pairs(temp) do 
-    xyPos = tilePos2Coords(v.r, v.c)
-    insert(self.pathfindingArray, {xyPos.x, xyPos.y})
-  end
-end
-
--- Based on x,y values in self.pathfindingArray, create connections between those nodes
-function Level:createConnectionsTable()
-end
-
--- Builds and returns the pathfinding grid object for a level
--- params validTiles: a table of x,y values of every floor, closed door, and open door tile
-function Level:buildPathfindingGrid(pathfindingArray)
-  self.pathfinder = playdate.pathfinder.graph.new(#pathfindingArray, pathfindingArray)
-end
-
 -- Generates and places, but does not display actors in a level
 -- TODO: add params
 function Level:generateActors()
@@ -181,6 +155,16 @@ function Level:undrawActors()
   end
 end
 
+-- Used in pathfinding, takes x, y 
+-- converts to matrix row and col space
+-- returns tile.class.walkable
+-- TODO: might need to move somewhere else
+function positionIsOpenFunc(x,y)
+  print("DEBUG: checking walkable at X: "..x.." Y: "..y)
+  tileGridPos = coords2TilePos(x,y)
+  return dungeon.levels[currentFloor].matrix[tileGridPos.r][tileGridPos.c].class.walkable
+end
+
 -- Called after Player Phase 
 -- runs intents and checks on all actors in level
 function Level:enemyPhase()
@@ -192,7 +176,10 @@ function Level:enemyPhase()
         table.remove(self.actors, k)
     end
     -- DEBUG: testing pathfinding
-    
+    startNode = {x = actor.x, y = actor.y}
+    goalNode = {x = Player.x, y = Player.y}
+    pathFound = luastar:find(SCREENWIDTH, SCREENHEIGHT, startNode, goalNode, positionIsOpenFunc, false, false)
+    printTable(pathFound)
   end
 end
 

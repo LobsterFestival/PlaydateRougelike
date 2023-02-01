@@ -34,24 +34,24 @@ cDoorImg  = gfx.image.new("images/TILES/C_DOOR")
 oDoorImg  = gfx.image.new("images/TILES/O_DOOR")
 
 -- Can't compare gfx.image objects, use this as a hacky work arround and compare strings instead!
-Tile.EMPTY      = {img = emptyImg, name = "empty"}
+Tile.EMPTY      = {img = emptyImg, name = "empty", walkable = false}
 
-Tile.FLOOR      = {img = floorImg, name = "floor"}
+Tile.FLOOR      = {img = floorImg, name = "floor", walkable = true}
 
-Tile.WALL      = {img = wallImg, name = "wall"}
+Tile.WALL      = {img = wallImg, name = "wall", walkable = false}
 
-Tile.A_STAIRCASE = {img = aStairImg, name = "aStair"}
+Tile.A_STAIRCASE = {img = aStairImg, name = "aStair", walkable = true}
 
-Tile.D_STAIRCASE = {img = dStairImg, name = "dStair"}
+Tile.D_STAIRCASE = {img = dStairImg, name = "dStair", walkable = true}
 
 -- HACK: remove the actual soil and vein generation eventually
-Tile.SOIL      = {img = wallImg, name = "soil"}
+Tile.SOIL      = {img = wallImg, name = "soil", walkable = false}
 
-Tile.VEIN      = {img = wallImg, name = "vein"}
+Tile.VEIN      = {img = wallImg, name = "vein", walkable = false}
 
-Tile.C_DOOR      = {img = cDoorImg, name = "cDoor"}
+Tile.C_DOOR      = {img = cDoorImg, name = "cDoor", walkable = true} -- DEBUG: TODO: will edit when keys are a thing
 
-Tile.O_DOOR      = {img = oDoorImg, name = "oDoor"}
+Tile.O_DOOR      = {img = oDoorImg, name = "oDoor", walkable = true}
 
 function Tile:new(t)
   local tile = {}

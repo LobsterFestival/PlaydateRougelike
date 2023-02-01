@@ -12,7 +12,7 @@
     https://en.wikipedia.org/wiki/A*_search_algorithm
     https://www.redblobgames.com/pathfinding/a-star/introduction.html
     https://www.raywenderlich.com/4946/introduction-to-a-pathfinding
-]]--
+]] --
 
 --- Provides easy A* path finding.
 -- @module lua-star
@@ -39,7 +39,7 @@ end
 
 -- (Internal) Saves a path to the cache.
 local function saveCached(start, goal, path)
-    module.cache = module.cache or { }
+    module.cache = module.cache or {}
     local key = keyOf(start, goal)
     module.cache[key] = path
 end
@@ -48,15 +48,15 @@ end
 -- This method doesn't bother getting the square root of s, it is faster
 -- and it still works for our use.
 local function distance(x1, y1, x2, y2)
-  local dx = x1 - x2
-  local dy = y1 - y2
-  local s = dx * dx + dy * dy
-  return s
+    local dx = x1 - x2
+    local dy = y1 - y2
+    local s = dx * dx + dy * dy
+    return s
 end
 
 -- (Internal) Clamp a value to a range.
 local function clamp(x, min, max)
-  return x < min and min or (x > max and max or x)
+    return x < min and min or (x > max and max or x)
 end
 
 -- (Internal) Return the score of a node.
@@ -92,22 +92,23 @@ end
 
 -- (Internal) Requests adjacent map values around the given node.
 local function getAdjacent(width, height, node, positionIsOpenFunc, includeDiagonals)
-
-    local result = { }
+    print("DEBUG: lua-star: nodeX: " .. node.x .. " nodeY: " .. node.y)
+    local result = {}
 
     local positions = {
-        { x = 0, y = -1 },  -- top
-        { x = -1, y = 0 },  -- left
-        { x = 0, y = 1 },   -- bottom
-        { x = 1, y = 0 },   -- right
+        { x = 0, y = -8 }, -- top
+        { x = -8, y = 0 }, -- left
+        { x = 0, y = 8 }, -- bottom
+        { x = 8, y = 0 }, -- right
     }
 
     if includeDiagonals then
+        -- TODO: fix calculations for diagonalMovements
         local diagonalMovements = {
-            { x = -1, y = -1 },   -- top left
-            { x = 1, y = -1 },   -- top right
-            { x = -1, y = 1 },   -- bot left
-            { x = 1, y = 1 },   -- bot right
+            { x = -1, y = -1 }, -- top left
+            { x = 1, y = -1 }, -- top right
+            { x = -1, y = 1 }, -- bot left
+            { x = 1, y = 1 }, -- bot right
         }
 
         for _, value in ipairs(diagonalMovements) do
@@ -116,11 +117,12 @@ local function getAdjacent(width, height, node, positionIsOpenFunc, includeDiago
     end
 
     for _, point in ipairs(positions) do
-        local px = clamp(node.x + point.x, 1, width)
-        local py = clamp(node.y + point.y, 1, height)
-        local value = positionIsOpenFunc( px, py )
+        local px = clamp(node.x + point.x, 0, width)
+        local py = clamp(node.y + point.y, 0, height)
+        print("DEBUG: lua-star: px: " .. px .. " py: " .. py)
+        local value = positionIsOpenFunc(px, py)
         if value then
-            table.insert( result, { x = px, y = py  } )
+            table.insert(result, { x = px, y = py })
         end
     end
 
@@ -139,8 +141,8 @@ function module:find(width, height, start, goal, positionIsOpenFunc, useCache, e
     end
 
     local success = false
-    local open = { }
-    local closed = { }
+    local open = {}
+    local closed = {}
 
     start.score = 0
     start.G = 0
@@ -161,7 +163,7 @@ function module:find(width, height, start, goal, positionIsOpenFunc, useCache, e
 
         if not success then
 
-            local adjacentList = getAdjacent(width, height, current, positionIsOpenFunc, not excludeDiagonalMoving)
+            local adjacentList = getAdjacent(width, height, current, positionIsOpenFunc, excludeDiagonalMoving)
 
             for _, adjacent in ipairs(adjacentList) do
 
@@ -189,11 +191,11 @@ function module:find(width, height, start, goal, positionIsOpenFunc, useCache, e
 
     -- traverse the parents from the last point to get the path
     local node = listItem(closed, closed[#closed])
-    local path = { }
+    local path = {}
 
     while node do
 
-        table.insert(path, 1, { x = node.x, y = node.y } )
+        table.insert(path, 1, { x = node.x, y = node.y })
         node = listItem(closed, node.parent)
 
     end
