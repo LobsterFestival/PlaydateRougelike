@@ -86,6 +86,10 @@ function Tile:isClosedDoor()
   return self.class.name == "cDoor"
 end
 
+function Tile:isOpenDoor()
+  return self.class.name == "oDoor"
+end
+
 function Tile:isAccendStair()
   return self.class.name == "aStair"
 end

@@ -44,6 +44,18 @@
             }
           },
           {
+            "id": "58cc2ebb59bb4ab8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Pathfinding.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
             "id": "caf39ed1cad10956",
             "type": "leaf",
             "state": {
@@ -64,7 +76,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -130,7 +142,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Effects.md",
+                "file": "Pathfinding.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -147,7 +159,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Effects.md",
+                "file": "Pathfinding.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -170,7 +182,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Effects.md"
+                "file": "Pathfinding.md"
               }
             }
           }
@@ -191,13 +203,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "7fcd4c2f36d69fe7",
+  "active": "58cc2ebb59bb4ab8",
   "lastOpenFiles": [
+    "Effects.md",
     "Actor.md",
     "Level.md",
     "Item.md",
     "Effect.md",
-    "Effects.md",
     "Player.md",
     "Combat System.md",
     "Stress.md",

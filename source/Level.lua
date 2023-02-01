@@ -2,7 +2,6 @@ import "helpFunctions"
 import "Tile"
 import "Room"
 import "Actor"
-
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
@@ -50,6 +49,8 @@ function Level:new(height, width)
     doorTilesArray = {},
     aStairLocation = {},
     dStairLocation = {},
+    pathfindingArray = {}, -- e.g {{x,y},{x,y}}
+    pathfinder = nil,
     actors = {}
   }
   level.maxRoomSize = ceil(min(height, width) / 10) + 5
@@ -77,6 +78,8 @@ function Level:generateLevel()
   -- Level Generation Complete
 
   self:trackImportantTiles()
+  self:createPathfindingArray()
+  self:buildPathfindingGrid(self.pathfindingArray)
   -- only currently displayed levels should generate and display their Actors
   -- self:generateActors()
 
@@ -121,9 +124,35 @@ function Level:addImportantTile(R, C, importantTile)
     insert(self.aStairLocation, { r = R, c = C })
   elseif importantTile.class.name == "dStair" then
     insert(self.dStairLocation, { r = R, c = C })
-  elseif importantTile.class.name == "cDoor" then
+  elseif importantTile:isClosedDoor() or importantTile:isOpenDoor() then
     insert(self.doorTilesArray, { r = R, c = C })
   end
+end
+
+-- convert floor, cDoor, oDoor tiles row and col values to x,y positions
+-- and place inside self.pathfindingArray
+function Level:createPathfindingArray()
+  local temp = {}
+  for k,v in pairs(self.floorTilesArray) do
+    insert(temp,v)
+  end
+  for k,v in pairs(self.doorTilesArray) do
+    insert(temp,v)
+  end
+  for k,v in pairs(temp) do 
+    xyPos = tilePos2Coords(v.r, v.c)
+    insert(self.pathfindingArray, {xyPos.x, xyPos.y})
+  end
+end
+
+-- Based on x,y values in self.pathfindingArray, create connections between those nodes
+function Level:createConnectionsTable()
+end
+
+-- Builds and returns the pathfinding grid object for a level
+-- params validTiles: a table of x,y values of every floor, closed door, and open door tile
+function Level:buildPathfindingGrid(pathfindingArray)
+  self.pathfinder = playdate.pathfinder.graph.new(#pathfindingArray, pathfindingArray)
 end
 
 -- Generates and places, but does not display actors in a level
@@ -155,7 +184,6 @@ end
 -- Called after Player Phase 
 -- runs intents and checks on all actors in level
 function Level:enemyPhase()
-  -- TODO: move intents/AI calls
   for k, actor in pairs(self.actors) do
     print("DEBUG: checking state of "..actor.name)
     if actor.hp <= 0 then
@@ -163,7 +191,9 @@ function Level:enemyPhase()
         actor:dead()
         table.remove(self.actors, k)
     end
-end
+    -- DEBUG: testing pathfinding
+    
+  end
 end
 
 -- TODO: add draw function for drawing actors only when we enter a room.
