@@ -92,7 +92,6 @@ end
 
 -- (Internal) Requests adjacent map values around the given node.
 local function getAdjacent(width, height, node, positionIsOpenFunc, includeDiagonals)
-    print("DEBUG: lua-star: nodeX: " .. node.x .. " nodeY: " .. node.y)
     local result = {}
 
     local positions = {
@@ -119,7 +118,6 @@ local function getAdjacent(width, height, node, positionIsOpenFunc, includeDiago
     for _, point in ipairs(positions) do
         local px = clamp(node.x + point.x, 0, width)
         local py = clamp(node.y + point.y, 0, height)
-        print("DEBUG: lua-star: px: " .. px .. " py: " .. py)
         local value = positionIsOpenFunc(px, py)
         if value then
             table.insert(result, { x = px, y = py })

@@ -2,8 +2,7 @@ import "helpFunctions"
 import "Tile"
 import "Room"
 import "Actor"
--- pure lua A* pathfinding library, Credits: https://github.com/wesleywerner/lua-star
-luastar = import "lua-star"
+
 local random = math.random
 local floor = math.floor
 local ceil = math.ceil
@@ -155,15 +154,7 @@ function Level:undrawActors()
   end
 end
 
--- Used in pathfinding, takes x, y 
--- converts to matrix row and col space
--- returns tile.class.walkable
--- TODO: might need to move somewhere else
-function positionIsOpenFunc(x,y)
-  print("DEBUG: checking walkable at X: "..x.." Y: "..y)
-  tileGridPos = coords2TilePos(x,y)
-  return dungeon.levels[currentFloor].matrix[tileGridPos.r][tileGridPos.c].class.walkable
-end
+
 
 -- Called after Player Phase 
 -- runs intents and checks on all actors in level
@@ -175,11 +166,7 @@ function Level:enemyPhase()
         actor:dead()
         table.remove(self.actors, k)
     end
-    -- DEBUG: testing pathfinding
-    startNode = {x = actor.x, y = actor.y}
-    goalNode = {x = Player.x, y = Player.y}
-    pathFound = luastar:find(SCREENWIDTH, SCREENHEIGHT, startNode, goalNode, positionIsOpenFunc, false, false)
-    printTable(pathFound)
+    actor:moveIntent()
   end
 end
 

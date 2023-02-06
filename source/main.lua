@@ -24,6 +24,7 @@ start = true
 currentFloor = 1
 Player = nil
 
+statusScreenImage = playdate.graphics.image.new("images/BACKGROUNDS/statusScreenMock")
 -- ##### END GLOBALS ##### --
 local gameScreenInputHandlers = {
     upButtonDown = function()
@@ -49,8 +50,8 @@ local gameScreenInputHandlers = {
             spawnInfo = playerGetNextLevelSpawnStair(currentTile, currentFloor)
         end
         if spawnInfo ~= nil then
-            local nextLevel = currentFloor + spawnInfo.offset            
-            print("Next Floor is: "..nextLevel)
+            local nextLevel = currentFloor + spawnInfo.offset
+            print("Next Floor is: " .. nextLevel)
             levelTransition(nextLevel, spawnInfo.x, spawnInfo.y)
         end
         -- TODO: eventually menuing and picking up items on the ground will also end Player Phase
@@ -102,7 +103,7 @@ local function initBackground()
     )
 end
 
-local function initPlayer(x,y)
+local function initPlayer(x, y)
     if (not Player) then
         print("creating player")
         -- DEBUG: will be created during Player creation screen
@@ -114,7 +115,7 @@ local function initPlayer(x,y)
     end
     -- if we have specified a x and y, place player there and return
     if x then
-        Player:moveTo(x,y)
+        Player:moveTo(x, y)
         Player:add()
         return
     end
@@ -126,6 +127,33 @@ local function initPlayer(x,y)
     spawnPos = tilePos2Coords(spawnRC.r, spawnRC.c)
     Player:moveTo(spawnPos.x, spawnPos.y)
     Player:add()
+end
+
+-- update system menu image with character status screen
+function statusScreenUpdate()
+    print("updating Status Screen")
+    local hpLoc = { x = 164, y = 23 }
+    local mpLoc = { x = 164, y = 47 }
+    local strLoc = { x = 164, y = 86 }
+    local dexLoc = { x = 164, y = 106 }
+    local conLoc = { x = 164, y = 126 }
+    local intLoc = { x = 164, y = 146 }
+    gfx.pushContext(statusScreenImage)
+    gfx.lockFocus(statusScreenImage)
+    gfx.drawText(""..Player.hp, hpLoc.x, hpLoc.y)
+    gfx.drawText(Player.mp, mpLoc.x, mpLoc.y)
+    gfx.drawText(Player.stats.STR, strLoc.x, strLoc.y)
+    gfx.drawText(Player.stats.DEX, dexLoc.x, dexLoc.y)
+    gfx.drawText(Player.stats.CON, conLoc.x, conLoc.y)
+    gfx.drawText(Player.stats.INT, intLoc.x, intLoc.y)
+    gfx.unlockFocus()
+    gfx.popContext()
+end
+
+function playdate.gameWillPause()
+    print("etto")
+    statusScreenUpdate()
+    playdate.setMenuImage(statusScreenImage)
 end
 
 -- handles cleaning up current level being displayed, prints the next dungeon,
@@ -144,17 +172,17 @@ function levelTransition(nextLevel, x, y)
     initBackground()
     gfx.sprite.update()
     playdate.timer.updateTimers()
-    initPlayer(x,y)
+    initPlayer(x, y)
     dungeon.levels[currentFloor]:drawActors()
 end
 
--- DEBUG: testing Turn Counter
 turnCount = 0
 -- Set input handler to gameScreenMovement
 playdate.inputHandlers.push(gameScreenInputHandlers)
 
 -- Main Game Loop --
 function playdate.update()
+
     if start then
         initBackground()
     end
@@ -173,4 +201,5 @@ function playdate.update()
         print("Turn " .. turnCount .. " is complete!\n")
     end
     playerPhaseComplete = false
+    playdate.drawFPS(10, 220)
 end

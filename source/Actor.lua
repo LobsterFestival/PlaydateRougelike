@@ -2,6 +2,9 @@ import "CoreLibs/object"
 import "CoreLibs/graphics"
 import "CoreLibs/sprites"
 import "ActorDefinitions"
+import "Item"
+-- pure lua A* pathfinding library, Credits: https://github.com/wesleywerner/lua-star
+luastar = import "lua-star"
 local gfx <const> = playdate.graphics
 -- ACTOR --
 UP = 1
@@ -11,6 +14,7 @@ RIGHT = 4
 
 DEBUGSEED = 728423326
 math.randomseed(DEBUGSEED)
+USECACHEDPATHING = true
 
 class('Actor').extends(gfx.sprite)
 ACTOR_SPRITE_GROUP = 2
@@ -29,7 +33,8 @@ function createActor(actorInfo)
     actor.mp = math.random(actorInfo.mpRange.min, actorInfo.mpRange.max)
     actor.stats = actorInfo.stats
     actor.activeEffects = {}
-    -- TODO: assign other actor information, equipped item, items to drop
+    actor.eqiuppedWeapon = createItem(i_sword)
+    -- TODO: assign other actor information, items to drop
     return actor
 end
 
@@ -58,23 +63,43 @@ function Actor:dead()
     print(self.name .. " drops some items")
 end
 
+-- Used in pathfinding, takes x, y
+-- converts to matrix row and col space
+-- returns tile.class.walkable
+function positionIsOpenFunc(x, y)
+    tileGridPos = coords2TilePos(x, y)
+    return dungeon.levels[currentFloor].matrix[tileGridPos.r][tileGridPos.c].class.walkable
+end
+
 function Actor:moveIntent()
     print(self.name .. " wants to move somewhere!")
+    -- DEBUG: testing pathfinding, calculate path every turn
+    local startNode = { x = self.x, y = self.y }
+    local goalNode = { x = Player.x, y = Player.y }
+    local pathFound = luastar:find(SCREENWIDTH, SCREENHEIGHT, startNode, goalNode, positionIsOpenFunc, USECACHEDPATHING, false)
+    local step = pathFound[2]
+    if #pathFound > 2 then
+        self:moveTo(step.x, step.y)
+    elseif step ~= nil and #pathFound == 2 then
+        print("Attempting to bump")
+        local actualPosX, actualPosY, collisionInfo, length = self:moveWithCollisions(step.x, step.y)
+        if #collisionInfo >= 1 then
+            target = collisionInfo[1].other
+            self.eqiuppedWeapon:useItem(target)
+        end
+    end
 end
 
--- called when "bumping" into player
-function Actor:meleeAttack()
-    print(self.name .. " is attacking something!")
-end
-
--- TODO: ranged attacks are hard, do later if time
-function Actor:rangedAttack()
+-- called when "bumping" into target , currently player only
+function Actor:meleeAttack(target)
+    print(self.name .. " is attacking "..target.name)
+    self.eqiuppedWeapon:useItem(target)
 end
 
 -- When Player attacks Actor
 function Actor:hitCalculation(item)
     print(self.name .. " is attacking Player with" .. item.name)
-    item:useItem(Player)
+    return 1
 end
 
 -- Called when entering Enemy Phase
@@ -101,12 +126,12 @@ function Actor:activeEffectsRemoval()
         for k, v in pairs(self.activeEffects) do
             if v.turns <= 0 then
                 print(v.name .. " has expired! removing")
-                table.remove(self.activeEffects,k)
+                table.remove(self.activeEffects, k)
             end
         end
     end
     if self.hp <= 0 then
-        print(self.name.." is dead!")
+        print(self.name .. " is dead!")
         self:dead()
     end
 end
